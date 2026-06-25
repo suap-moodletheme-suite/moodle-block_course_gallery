@@ -23,12 +23,10 @@
  */
 class block_course_gallery extends block_base
 {
-
     /**
      * Initializes class member variables.
      */
-    public function init()
-    {
+    public function init() {
         // Needed by Moodle to differentiate between blocks.
         $this->title = get_string('pluginname', 'block_course_gallery');
     }
@@ -38,8 +36,7 @@ class block_course_gallery extends block_base
      *
      * @return stdClass The block contents.
      */
-    public function get_content()
-    {
+    public function get_content() {
 
         if ($this->content !== null) {
             return $this->content;
@@ -71,15 +68,14 @@ class block_course_gallery extends block_base
      *
      * The function is called immediately after init().
      */
-    public function specialization()
-    {
+    public function specialization() {
         // Para retirar o título
         $this->title = '';
 
         global $PAGE, $CFG;
         $courses_request_url = $CFG->wwwroot . '/blocks/course_gallery/api/get_courses.php';
         $PAGE->requires->js_call_amd('block_course_gallery/main', 'init', [$courses_request_url, $this->config->max_courses ?? 3]);
-        
+
         // noUiSlider
         $PAGE->requires->css(new moodle_url('https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css'));
         $PAGE->requires->js(new moodle_url('https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js'), true);
@@ -87,8 +83,7 @@ class block_course_gallery extends block_base
         $PAGE->requires->js_call_amd('block_course_gallery/noUiSlider', 'init');
     }
 
-    protected function render_courses()
-    {
+    protected function render_courses() {
         global $OUTPUT;
 
         $output = html_writer::start_div('course-area');
@@ -116,8 +111,7 @@ class block_course_gallery extends block_base
      *
      * @return string[] Array of pages and permissions.
      */
-    public function applicable_formats()
-    {
+    public function applicable_formats() {
         return [
             'admin' => false,
             'site-index' => true,

@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 require_once('../../../config.php');
 
@@ -49,7 +63,7 @@ if (!empty($learningpath)) {
         }
     }
 
-    list($learningpath_query, $learningpath_params) = $DB->get_in_or_equal($learningpath_values, SQL_PARAMS_NAMED, 'learningpath');
+    [$learningpath_query, $learningpath_params] = $DB->get_in_or_equal($learningpath_values, SQL_PARAMS_NAMED, 'learningpath');
     $sql_conditions[] = "id IN (SELECT courseid FROM {suap_learning_path_course} WHERE learningpathid $learningpath_query)";
     $params = array_merge($params, $learningpath_params);
 }
@@ -92,7 +106,7 @@ foreach ($courses as $course) {
         $max = isset($workload_values[1]) ? (int) $workload_values[1] : $min;
 
         if ($min > $max) {
-            list($min, $max) = [$max, $min];
+            [$min, $max] = [$max, $min];
         }
 
         $course_workload = (int) $custom_fields_metadata->carga_horaria;

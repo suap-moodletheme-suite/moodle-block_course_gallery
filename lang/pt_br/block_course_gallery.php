@@ -1,4 +1,3 @@
-
 <?php
 // This file is part of Moodle - https://moodle.org/
 //
@@ -26,9 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Course Gallery';
-
 $string['add_title'] = 'Título principal';
 $string['filter'] = 'Filtros';
 $string['max_courses'] = 'Cursos por página';
+$string['pluginname'] = 'Course Gallery';
 $string['selected_time'] = 'Horário selecionado:';
