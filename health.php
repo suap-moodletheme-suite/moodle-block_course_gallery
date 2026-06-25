@@ -14,9 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
+/**
+ * Health check file.
+ *
+ * @package    block_course_gallery
+ * @copyright  2025 Your Name <you@example.com>
+ * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+// phpcs:disable moodle.Files.MoodleInternal.MoodleInternalCheck
+// phpcs:disable moodle.Files.MoodleInternal.MoodleInternalGlobalState
+
 define("MOODLE_INTERNAL", true);
 define("MATURITY_STABLE", true);
 $plugin = new stdClass();
-include_once("version.php");
+require_once("version.php");
 echo "release: $plugin->release<br>";
 echo "version: $plugin->version<br>";

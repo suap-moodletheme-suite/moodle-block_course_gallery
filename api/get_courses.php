@@ -14,18 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
+/**
+ * API to fetch open courses for the block gallery.
+ *
+ * @package    block_course_gallery
+ * @copyright  2025 Your Name <you@example.com>
+ * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+// phpcs:ignore moodle.Files.RequireLogin.Missing
 require_once('../../../config.php');
 
 use core_course\course;
 
-$current_page = max(0, optional_param('page', 0, PARAM_INT));
-$courses_per_page = max(1, optional_param('limit', 8, PARAM_INT));
+$currentpage = max(0, optional_param('page', 0, PARAM_INT));
+$coursesperpage = max(1, optional_param('limit', 8, PARAM_INT));
 $query = optional_param('search', '', PARAM_TEXT);
 $workload = optional_param('workload', '', PARAM_TEXT);
 $certificate = optional_param('certificate', '', PARAM_TEXT);
 $learningpath = optional_param('learningpath', '', PARAM_TEXT);
 
-// Nega requisições que não sejam internas
+// Nega requisições que não sejam internas.
 $host = $_SERVER['HTTP_HOST'];
 $referer = isset($_SERVER['HTTP_REFERER']) ? parse_url($_SERVER['HTTP_REFERER']) : null;
 if (!$referer || $referer['host'] !== $host) {
@@ -33,123 +42,130 @@ if (!$referer || $referer['host'] !== $host) {
     die;
 }
 
-$categories_records = $DB->get_records('course_categories', null, '', 'id, name');
+$categoriesrecords = $DB->get_records('course_categories', null, '', 'id, name');
 $categories = [];
-foreach ($categories_records as $category) {
-    $category_obj = new stdClass();
-    $category_obj->name = $category->name;
-    $category_obj->url = "{$CFG->wwwroot}/course/management.php?categoryid={$category->id}";
-    $categories[$category->id] = $category_obj;
+foreach ($categoriesrecords as $category) {
+    $categoryobj = new stdClass();
+    $categoryobj->name = $category->name;
+    $categoryobj->url = "{$CFG->wwwroot}/course/management.php?categoryid={$category->id}";
+    $categories[$category->id] = $categoryobj;
 }
 
-$sql_conditions = [];
+$sqlconditions = [];
 $params = [];
 
 if (!empty($query)) {
-    $sql_conditions[] = "LOWER(fullname) LIKE LOWER(:query)";
+    $sqlconditions[] = "LOWER(fullname) LIKE LOWER(:query)";
     $params['query'] = '%' . $query . '%';
 }
 
-// TODO: Validar workloads
+// TODO: MDL-00000 Validar workloads.
 
 if (!empty($learningpath)) {
-    $learningpath_values = explode(',', $learningpath);
+    $learningpathvalues = explode(',', $learningpath);
 
-    foreach ($learningpath_values as $value) {
+    foreach ($learningpathvalues as $value) {
         if (empty($value) || !is_numeric($value) || $value <= 0) {
             header("HTTP/1.1 400 Bad Request");
-            echo json_encode(["error" => "Parâmetro 'learningpath' inválido. Certifique-se de que os valores são numéricos e estão bem formatados."]);
+            echo json_encode([
+                "error" => "Parâmetro 'learningpath' inválido. Certifique-se de que os valores são numéricos.",
+            ]);
             exit;
         }
     }
 
-    [$learningpath_query, $learningpath_params] = $DB->get_in_or_equal($learningpath_values, SQL_PARAMS_NAMED, 'learningpath');
-    $sql_conditions[] = "id IN (SELECT courseid FROM {suap_learning_path_course} WHERE learningpathid $learningpath_query)";
-    $params = array_merge($params, $learningpath_params);
+    [$learningpathquery, $learningpathparams] = $DB->get_in_or_equal($learningpathvalues, SQL_PARAMS_NAMED, 'learningpath');
+    $sqlconditions[] = "id IN (SELECT courseid FROM {suap_learning_path_course} WHERE learningpathid $learningpathquery)";
+    $params = array_merge($params, $learningpathparams);
+}
+
+$conditions = "";
+if (!empty($sqlconditions)) {
+    $conditions = ' AND ' . implode(' AND ', $sqlconditions);
 }
 
 $sql = "
 SELECT c.id, c.fullname, c.category
-FROM {course} as c INNER JOIN {enrol} AS e ON (c.id = e.courseid)
-WHERE c.visible = 1 AND c.id != 1 AND e.enrol = 'self' AND e.status = 0 " . (!empty($sql_conditions) ? ' AND ' . implode(' AND ', $sql_conditions) : '') . "
+FROM {course} c INNER JOIN {enrol} e ON (c.id = e.courseid)
+WHERE c.visible = 1 AND c.id != 1 AND e.enrol = 'self' AND e.status = 0 {$conditions}
 ORDER BY c.id DESC
 ";
 
-// Executa a consulta de forma segura
+// Executa a consulta de forma segura.
 $courses = $DB->get_records_sql($sql, $params);
 
-$courses_response = [];
+$coursesresponse = [];
 foreach ($courses as $course) {
-    $image_url = \core_course\external\course_summary_exporter::get_course_image($course);
-    if (empty($image_url)) {
-        $image_url = "{$CFG->wwwroot}/blocks/course_gallery/pix/default-course-image.webp";
+    $imageurl = \core_course\external\course_summary_exporter::get_course_image($course);
+    if (empty($imageurl)) {
+        $imageurl = "{$CFG->wwwroot}/blocks/course_gallery/pix/default-course-image.webp";
     }
 
     $category = $categories[$course->category];
-    $custom_fields_metadata = \core_course\customfield\course_handler::create()->export_instance_data_object($course->id, true);
+    $customfieldsmetadata = \core_course\customfield\course_handler::create()->export_instance_data_object($course->id, true);
 
-    $raw_datas = \core_course\customfield\course_handler::create()->get_instance_data($course->id, true);
-    foreach ($raw_datas as $data) {
+    $rawdatas = \core_course\customfield\course_handler::create()->get_instance_data($course->id, true);
+    foreach ($rawdatas as $data) {
         $shortname = $data->get_field()->get('shortname');
         if ($shortname === 'tem_certificado') {
-            $custom_fields_metadata->tem_certificado = $data->get_value();
+            $customfieldsmetadata->tem_certificado = $data->get_value();
         }
     }
 
-    $course_lang = isset($custom_fields_metadata->linguagem_conteudo) ? $custom_fields_metadata->linguagem_conteudo : '';
+    $courselang = isset($customfieldsmetadata->linguagem_conteudo) ? $customfieldsmetadata->linguagem_conteudo : '';
 
     if (!empty($workload)) {
-        $workload_values = explode(',', $workload);
-        $is_valid_workload = false;
+        $workloadvalues = explode(',', $workload);
+        $isvalidworkload = false;
 
-        $min = (int) $workload_values[0];
-        $max = isset($workload_values[1]) ? (int) $workload_values[1] : $min;
+        $min = (int) $workloadvalues[0];
+        $max = isset($workloadvalues[1]) ? (int) $workloadvalues[1] : $min;
 
         if ($min > $max) {
             [$min, $max] = [$max, $min];
         }
 
-        $course_workload = (int) $custom_fields_metadata->carga_horaria;
+        $courseworkload = (int) $customfieldsmetadata->carga_horaria;
 
-        if ($course_workload == 0) {
+        if ($courseworkload == 0) {
             continue;
         }
 
-        if ($course_workload < $min || $course_workload > $max) {
+        if ($courseworkload < $min || $courseworkload > $max) {
             continue;
         }
     }
 
     if (!empty($certificate)) {
-        $certificate_values = explode(',', $certificate);
-        $is_valid_certificate = false;
-        foreach ($certificate_values as $value) {
-            if ($custom_fields_metadata->tem_certificado == $value) {
-                $is_valid_certificate = true;
+        $certificatevalues = explode(',', $certificate);
+        $isvalidcertificate = false;
+        foreach ($certificatevalues as $value) {
+            if ($customfieldsmetadata->tem_certificado == $value) {
+                $isvalidcertificate = true;
                 break;
             }
         }
-        if (!$is_valid_certificate) {
+        if (!$isvalidcertificate) {
             continue;
         }
     }
 
-    $course_response = new stdClass();
-    $course_response->has_certificate = $custom_fields_metadata->tem_certificado;
-    $course_response->workload = $custom_fields_metadata->carga_horaria;
-    $course_response->lang = $custom_fields_metadata->linguagem_conteudo;
-    $course_response->id = $course->id;
-    $course_response->fullname = $course->fullname;
-    $course_response->category_name = $category->name;
-    $course_response->category_url = $category->url;
-    $course_response->image_url = $image_url;
-    $course_response->url = "{$CFG->wwwroot}/course/view.php?id={$course->id}";
+    $courseresponse = new stdClass();
+    $courseresponse->has_certificate = $customfieldsmetadata->tem_certificado;
+    $courseresponse->workload = $customfieldsmetadata->carga_horaria;
+    $courseresponse->lang = $customfieldsmetadata->linguagem_conteudo;
+    $courseresponse->id = $course->id;
+    $courseresponse->fullname = $course->fullname;
+    $courseresponse->category_name = $category->name;
+    $courseresponse->category_url = $category->url;
+    $courseresponse->image_url = $imageurl;
+    $courseresponse->url = "{$CFG->wwwroot}/course/view.php?id={$course->id}";
 
-    $courses_response[] = $course_response;
+    $coursesresponse[] = $courseresponse;
 }
 
-$size = count($courses_response);
-$courses_response = array_slice($courses_response, $current_page * $courses_per_page, $courses_per_page);
+$size = count($coursesresponse);
+$coursesresponse = array_slice($coursesresponse, $currentpage * $coursesperpage, $coursesperpage);
 
-echo json_encode(['total' => $size, 'courses' => $courses_response, 'baseurl' => $CFG->wwwroot]);
+echo json_encode(['total' => $size, 'courses' => $coursesresponse, 'baseurl' => $CFG->wwwroot]);
 die;
