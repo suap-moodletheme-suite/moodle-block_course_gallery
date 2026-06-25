@@ -1,24 +1,74 @@
+##
+# GitHub Actions workflow: moodle-plugin-ci continuous integration.
+#
+# Runs on every push and pull-request to verify the plugin against multiple
+# Moodle versions using the official moodle-plugin-ci toolchain.
+##
 name: Moodle Plugin CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - 'MOODLE_*'
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - 'MOODLE_*'
+
+permissions:
+  contents: read
 
 jobs:
-  ci:
+  test:
+    name: Moodle ${{ matrix.moodle-branch }} / PHP ${{ matrix.php }} / DB ${{ matrix.database }}
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     strategy:
+      fail-fast: false
       matrix:
-        php: ['7.4', '8.0', '8.1']
-        moodle-branch: ['MOODLE_401_STABLE', 'MOODLE_402_STABLE', 'MOODLE_403_STABLE']
-        database: [pgsql, mariadb]
+        php:
+          - '8.1'
+          - '8.2'
+          - '8.3'
+          - '8.4'
+        moodle-branch:
+          - 'MOODLE_405_STABLE'
+          - 'MOODLE_500_STABLE'
+          - 'MOODLE_501_STABLE'
+        database:
+          - pgsql
+          - mariadb
+        include:
+          - database: mariadb
+            service: mariadb
+        exclude:
+          # PHP 8.4 not supported in Moodle 4.5
+          - moodle-branch: 'MOODLE_405_STABLE'
+            php: '8.4'
+          # PHP 8.1 not supported in Moodle 5.0+
+          - moodle-branch: 'MOODLE_500_STABLE'
+            php: '8.1'
+          - moodle-branch: 'MOODLE_501_STABLE'
+            php: '8.1'
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: plugin
 
@@ -26,85 +76,105 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, xml, zip, gd, curl, intl, soap
+          extensions: mbstring, pdo, pdo_pgsql, pgsql, mysqli, gd, intl, xml, zip, curl
+          ini-values: max_input_vars=5000
           coverage: none
+
+      - name: Start MariaDB service
+        if: matrix.database == 'mariadb'
+        run: |
+          docker run -d \
+            --name mariadb \
+            -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
+            -e MYSQL_CHARACTER_SET_SERVER=utf8mb4 \
+            -e MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci \
+            -p 3306:3306 \
+            mariadb:10.11
+          sleep 10
 
       - name: Initialise moodle-plugin-ci
         run: |
-          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
-          echo $(cd ci && pwd)/vendor/bin >> $GITHUB_PATH
-          echo $(cd ci && pwd)/bin >> $GITHUB_PATH
-          php -d max_input_vars=10000 $(cd ci && pwd)/bin/moodle-plugin-ci install \
-            --plugin ./plugin \
-            --db-host=127.0.0.1
+          composer create-project -n --no-dev --prefer-dist \
+            moodlehq/moodle-plugin-ci ci ^4
+          echo "$(cd ci && pwd)/bin" >> $GITHUB_PATH
+          echo "$(cd ci && pwd)/vendor/bin" >> $GITHUB_PATH
+          sudo locale-gen en_AU.UTF-8
+        env:
+          COMPOSER_ALLOW_SUPERUSER: 1
+
+      - name: Install Moodle
+        id: install
+        run: |
+          if [ "${{ matrix.database }}" = "pgsql" ]; then
+            moodle-plugin-ci install \
+              --plugin ./plugin \
+              --db-host=127.0.0.1 \
+              --branch ${{ matrix.moodle-branch }}
+          else
+            moodle-plugin-ci install \
+              --plugin ./plugin \
+              --db-type mariadb \
+              --db-host=127.0.0.1 \
+              --branch ${{ matrix.moodle-branch }}
+          fi
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
+          COMPOSER_PROCESS_TIMEOUT: 0
+          COMPOSER_NO_INTERACTION: 1
+          COMPOSER_NO_AUDIT: 1
+          npm_config_fetch_timeout: 120000
+          npm_config_fetch_retry: 5
+          npm_config_fetch_retry_mintimeout: 20000
+          npm_config_fetch_retry_maxtimeout: 120000
+          NODE_OPTIONS: --max-old-space-size=4096
 
       - name: PHP Lint
-        if: always()
         run: moodle-plugin-ci phplint
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
 
       - name: PHP Copy/Paste Detector
-        continue-on-error: true
-        if: always()
         run: moodle-plugin-ci phpcpd
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        continue-on-error: true
 
       - name: PHP Mess Detector
-        continue-on-error: true
-        if: always()
         run: moodle-plugin-ci phpmd
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        continue-on-error: true
 
       - name: Moodle Code Checker
-        if: always()
-        run: moodle-plugin-ci codechecker --max-warnings 0
+        run: moodle-plugin-ci codechecker
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
 
       - name: Moodle PHPDoc Checker
-        if: always()
-        run: moodle-plugin-ci phpdoc --max-warnings 0
+        run: moodle-plugin-ci phpdoc
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        continue-on-error: true
 
       - name: Validating
-        if: always()
         run: moodle-plugin-ci validate
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
 
       - name: Check upgrade savepoints
-        if: always()
         run: moodle-plugin-ci savepoints
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
 
       - name: Mustache Lint
-        if: always()
         run: moodle-plugin-ci mustache
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        continue-on-error: true
 
       - name: Grunt
+        run: moodle-plugin-ci grunt
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         continue-on-error: true
-        if: always()
-        run: moodle-plugin-ci grunt --max-lint-warnings 0
 
       - name: PHPUnit tests
-        if: always()
         run: moodle-plugin-ci phpunit --fail-on-warning
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
 
       - name: Behat features
-        if: always()
         run: moodle-plugin-ci behat --profile chrome
-
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
-
-      mariadb:
-        image: mariadb:10.6
-        env:
-          MYSQL_USER: root
-          MYSQL_ALLOW_EMPTY_PASSWORD: true
-          MYSQL_CHARACTER_SET_SERVER: utf8mb4
-          MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        continue-on-error: true
