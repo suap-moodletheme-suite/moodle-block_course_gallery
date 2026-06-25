@@ -1,8 +1,15 @@
 define(['jquery', 'https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js'], function($, noUiSlider) {
     return {
+        /**
+         * Initialize the noUiSlider widget.
+         *
+         * @returns {void}
+         */
         init: function() {
             const slider = document.getElementById('workload-slider');
-            if (!slider) return;
+            if (!slider) {
+                return;
+            }
 
             const rangeDisplay = document.getElementById('workload-range-display');
             const rangeTotal = document.getElementById('workload-range-total');
