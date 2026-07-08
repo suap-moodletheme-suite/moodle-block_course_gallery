@@ -1,93 +1,63 @@
-# block_course_gallery
+# Bloco Galeria de Cursos (`block_course_gallery`)
 
+Este é um bloco personalizado do Moodle desenvolvido para a suíte de temas do IFRN (`suap-moodletheme-suite`). O plugin permite exibir uma galeria interativa e responsiva de cursos abertos com autoinscrição ativa.
 
+## 🚀 Funcionalidades
 
-## Getting started
+- **Galeria Dinâmica**: Apresenta os cursos em formato de cartões com imagens personalizadas do curso.
+- **Filtros Avançados (Modal)**:
+  - **Pesquisa textual**: Busca por termo no nome do curso.
+  - **Carga Horária**: Controle deslizante dinâmico de intervalo (utilizando a biblioteca `noUiSlider`) baseado no campo customizado `carga_horaria`.
+  - **Certificado**: Filtra os cursos que emitem certificado baseado no campo customizado `tem_certificado`.
+  - **Idioma**: Filtra os cursos pelo idioma do conteúdo (`linguagem_conteudo`).
+  - **Trilha de Aprendizagem**: Filtra por trilhas de aprendizagem cadastradas no banco de dados (`suap_learning_path_course`).
+- **Estados Visuais Fluídos (Skeleton Loader)**: Exibe animações de carregamento (*skeleton screen*) nos cartões de cursos enquanto os dados são obtidos de forma assíncrona.
+- **Paginação integrada**: Paginação Ajax rápida e dinâmica para navegação suave entre as páginas.
+- **API Segura**: Endpoint exclusivo (`api/get_courses.php`) com validação de origem de requisição (*HTTP Host/Referer*).
+- **Internacionalização**: Totalmente traduzido em Português do Brasil (`pt_br`) e Inglês (`en`).
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## 🛠️ Requisitos e Configuração Prévia
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Para o funcionamento pleno dos filtros do bloco, o Moodle deve conter os seguintes campos de perfil do curso ou tabelas personalizadas:
 
-## Add your files
+1. **Campos Customizados de Curso**:
+   - `carga_horaria` (Inteiro/Texto): Representa a carga horária em horas do curso.
+   - `tem_certificado` (Checkbox/Booleano): Indica se o curso emite certificado.
+   - `linguagem_conteudo` (Texto/Menu): Indica o idioma do curso (ex: `pt_br`, `es`, `en`).
+2. **Trilha de Aprendizagem (Tabela customizada)**:
+   - Tabela `{suap_learning_path_course}` para mapear a associação entre cursos e trilhas de aprendizagem.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## ⚙️ Configuração do Bloco
 
-```
-cd existing_repo
-git remote add origin https://codelab.ifrn.edu.br/dead-zl/ava/lms/block_course_gallery.git
-git branch -M proximo
-git push -uf origin proximo
-```
+Ao adicionar o bloco a uma página (como a página inicial do site ou painel do usuário), os seguintes parâmetros podem ser configurados:
 
-## Integrate with your tools
+- **Título Principal**: Título exibido no cabeçalho do bloco (padrão: *Cursos abertos do IFRN*).
+- **Cursos por página**: Define o limite máximo de cursos exibidos simultaneamente por página (padrão: `9`).
 
-- [ ] [Set up project integrations](https://codelab.ifrn.edu.br/dead-zl/ava/lms/block_course_gallery/-/settings/integrations)
+## 📥 Instalação
 
-## Collaborate with your team
+1. Baixe ou clone o repositório dentro do diretório de blocos do seu Moodle:
+   ```bash
+   cd /caminho/do/seu/moodle/blocks
+   git clone https://github.com/ifrn/block_course_gallery.git course_gallery
+   ```
+   *(Certifique-se de que a pasta de destino seja nomeada como `course_gallery`)*.
+2. Acesse a administração do seu Moodle (`/admin`) para disparar o processo de atualização de banco de dados e detecção de novas versões.
+3. Configure os direitos de exibição e adicione o bloco nas páginas permitidas (Página inicial ou Painel).
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+## 📂 Estrutura do Projeto
 
-## Test and Deploy
+- `block_course_gallery.php`: Classe base do bloco que renderiza o esqueleto inicial e chama o Javascript do frontend.
+- `edit_form.php`: Definição do formulário de configuração do bloco.
+- `version.php`: Definição da versão do bloco e dependências do Moodle.
+- `api/get_courses.php`: Script PHP que processa as requisições AJAX, filtra a consulta de cursos e retorna JSON.
+- `amd/src/main.js`: Lógica Javascript (módulo AMD) para carregar os cursos via AJAX, gerenciar a paginação e os filtros.
+- `amd/src/noUiSlider.js`: Módulo de inicialização e customização do *slider* de carga horária.
+- `templates/`: Arquivos Mustache contendo os templates do bloco (`header.mustache` e `pagination.mustache`).
+- `styles.css`: Estilos e classes visuais para os filtros, paginação e *skeleton screens*.
+- `lang/`: Diretório de tradução com suporte para `pt_br` e `en`.
+- `health.php`: Arquivo para checagem rápida do status e versão do plugin.
 
-Use the built-in continuous integration in GitLab.
+## 📄 Licença
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Este plugin é distribuído sob os termos da licença **GNU GPL v3 ou posterior**. Veja o arquivo [LICENSE](file:///C:/Users/2080882/projetos/IFRN/suap-moodletheme-suite/block_course_gallery/LICENSE) para mais detalhes.
