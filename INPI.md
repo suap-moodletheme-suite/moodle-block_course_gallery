@@ -1,12 +1,12 @@
 # Dados para envio ao INPI
 
-- Título: **H5P.CustomizableInteractiveBook (plugin H5P)**
-- Linguagens de programação: `JavaScript`
-- Classificação: `IF-01; IF-07;PD-01`
+- Título: **block_course_gallery (plugin Moodle do tipo bloco)**
+- Linguagens de programação: `PHP`, `JavaScript`, `CSS`, `Mustache`, `SQL`
+- Classificação: `AP01 - Aplicativos`, `EA01 - Educação / Aprendizagem`, `GI01 - Gerenciador de Informações`, `IN01 - Internet / Web`
 - Data de criação: `07/05/2025`
-- Apresentação: 
-- Descrição: 
-- Aplicação: 
-- Futuros: 
-- Viabilidade Econômica: 
-- Programas Similares: 
+- Apresentação: O block_course_gallery é um plugin para o Moodle que disponibiliza uma vitrine moderna, interativa e responsiva de cursos abertos com autoinscrição habilitada. Projetado para atuar na página inicial ou no painel do usuário, o bloco atua como catálogo público de ofertas formativas, facilitando a busca, descoberta e ingresso de estudantes em cursos autoinstrucionais, de extensão e de capacitação profissional.
+- Descrição: O programa se destaca por sua arquitetura assíncrona orientada a desempenho, utilizando um endpoint dedicado (`api/get_courses.php`) protegido por validação de integridade de requisição (HTTP Referer/Host). O frontend implementa módulos AMD em JavaScript que realizam consultas AJAX sem recarregamento de página, exibindo cartões de cursos com animações de carregamento suave (skeleton loader). O bloco integra filtros avançados em modal interativo: busca textual no nome do curso, controle deslizante (slider) de intervalo de carga horária baseado na biblioteca noUiSlider, filtro de emissão de certificado e de idioma com base nos campos customizados do curso (`carga_horaria`, `tem_certificado`, `linguagem_conteudo`), além de filtro por trilhas de aprendizagem associadas via tabela de banco de dados (`{suap_learning_path_course}`). A paginação é dinâmica e totalmente integrada aos templates modulares Mustache.
+- Aplicação: O block_course_gallery é aplicado em portais de cursos abertos e massivos (MOOC), ambientes de extensão universitária e plataformas de treinamento corporativo e governamental baseadas em Moodle. Ele resolve a dificuldade de localização e exploração de cursos em catálogos volumosos, permitindo que visitantes e estudantes cadastrados encontrem cursos adequados à sua disponibilidade de carga horária, idioma e interesse formativo com poucos cliques.
+- Futuros: Entre os desenvolvimentos futuros previstos para o block_course_gallery estão o suporte a filtros combinados por áreas de conhecimento e competências, ordenação dinâmica por popularidade e data de lançamento, modo de visualização em carrossel deslizante (touch-swipe) para dispositivos móveis, armazenamento em cache de alta velocidade (Moodle Universal Cache / Redis) para catálogos com milhares de cursos e motor de recomendação inteligente baseado nas preferências e histórico do estudante.
+- Viabilidade Econômica: A tecnologia é altamente transferível para redes públicas de ensino, plataformas de MOOC estaduais e nacionais e organizações com programas de educação corporativa. O plugin elimina a necessidade de contratação ou desenvolvimento de portais externos (como WordPress ou Drupal) apenas para atuar como vitrine de cursos, centralizando o catálogo e a autoinscrição diretamente no Moodle. Isso reduz significativamente os custos de infraestrutura, manutenção de software e captação de alunos, proporcionando um mecanismo eficiente de divulgação institucional.
+- Programas Similares: Programas similares incluem o bloco padrão de Visão Geral de Cursos (Course Overview) do Moodle, o bloco Lista de Cursos (Course List) e soluções comerciais como Edwiser Course Formats. O block_course_gallery diferencia-se por seu foco exclusivo em cursos abertos autoinstrucionais, filtragem dinâmica por carga horária com slider, integração com trilhas de aprendizagem personalizadas, interface com skeleton screen para alta performance e total gratuidade sob licença GPL.
