@@ -19,7 +19,9 @@ Compilando esta documentação
    pip install -r docs/requirements.txt
    sphinx-build -W -b html docs docs/_build/html
 
-A versão exibida é lida de ``version.php`` por ``docs/conf.py``.
+A versão exibida é lida de ``version.php`` por ``docs/conf.py``. O fluxo
+``.github/workflows/docs.yml`` faz esse mesmo *build* (com ``-W``) em pushes e PRs e, em
+pushes na ``main``, publica o resultado no GitHub Pages.
 
 Integração contínua
 -------------------
