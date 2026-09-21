@@ -16,6 +16,9 @@ on:
     tags:
       - '*'
 
+permissions:
+  contents: read
+
 jobs:
   release:
     name: Build and release plugin ZIP
