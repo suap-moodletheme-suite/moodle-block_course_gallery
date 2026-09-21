@@ -58,6 +58,15 @@ Ao adicionar o bloco a uma página (como a página inicial do site ou painel do 
 - `lang/`: Diretório de tradução com suporte para `pt_br` e `en`.
 - `health.php`: Arquivo para checagem rápida do status e versão do plugin.
 
+## 📚 Documentação
+
+Documentação completa em reStructuredText (Sphinx, tema `moodle_docs_theme`) no diretório [`docs/`](docs/index.rst):
+
+```bash
+pip install -r docs/requirements.txt
+sphinx-build -W -b html docs docs/_build/html
+```
+
 ## 📄 Licença
 
 Este plugin é distribuído sob os termos da licença **GNU GPL v3 ou posterior**. Veja o arquivo [LICENSE](file:///C:/Users/2080882/projetos/IFRN/suap-moodletheme-suite/block_course_gallery/LICENSE) para mais detalhes.
