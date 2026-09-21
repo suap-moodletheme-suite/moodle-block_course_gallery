@@ -2,6 +2,7 @@
 # GitHub Actions workflow: build da documentação (Sphinx + moodle_docs_theme)
 # em todo push/PR e publicação no GitHub Pages a partir da branch main.
 ##
+
 name: Documentation
 
 on:
