@@ -1,0 +1,42 @@
+Internacionalização
+===================
+
+Idiomas suportados: **inglês** (``lang/en``) e **português do Brasil** (``lang/pt_br``).
+
+Strings do plugin
+-----------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 35 45
+
+   * - Chave
+     - Inglês
+     - Português (Brasil)
+   * - ``pluginname``
+     - Course Gallery
+     - Course Gallery
+   * - ``add_title``
+     - Main  title
+     - Título principal
+   * - ``max_courses``
+     - Courses per page
+     - Cursos por página
+   * - ``filter``
+     - Filters
+     - Filtros
+   * - ``selected_time``
+     - Selected time:
+     - Horário selecionado:
+
+Strings de outros componentes
+-----------------------------
+
+Reutiliza strings do núcleo (``search``, ``language``, ``english``, ``yes``, ``prev``,
+``next``, ``clearfilters``, ``applyfilters``, ``closebuttontitle``, ``nomorecourses``,
+``hours``) e do ``theme_suap`` (``certificate``, ``workload``, ``pt-br``, ``es``).
+
+.. note::
+
+   O título padrão (``Cursos abertos do IFRN``) e o rótulo da coluna "Trilha" estão
+   escritos diretamente em português no código, e não em strings de idioma.
