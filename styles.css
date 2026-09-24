@@ -452,8 +452,8 @@
 #filter-content-workload-column {
 
     .filter-content-column-title {
-      display: flex;
-      justify-content: space-between;
+        display: flex;
+        justify-content: space-between;
     }
 
     .workload-range-label {
