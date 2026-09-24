@@ -26,7 +26,6 @@ namespace block_course_gallery;
  * @covers     \block_course_gallery\course_repository
  */
 final class course_repository_test extends \advanced_testcase {
-
     /**
      * Test get_eligible_category_ids with empty configuration.
      */

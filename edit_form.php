@@ -47,4 +47,3 @@ class block_course_gallery_edit_form extends block_edit_form {
         $mform->setDefault('config_max_courses', 9);
     }
 }
-
