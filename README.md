@@ -60,6 +60,13 @@ Ao adicionar o bloco a uma página (como a página inicial do site ou painel do 
 - `lang/`: Diretório de tradução com suporte para `pt_br` e `en`.
 - `health.php`: Arquivo para checagem rápida do status e versão do plugin.
 
+## 🏷️ Convenção de Versionamento e Releases
+
+Ao atualizar a versão do plugin em `version.php` para publicar uma nova release e tag:
+
+- **Correspondência de Sufixos**: Os 2 últimos dígitos de `$plugin->version` (ex: `2026092407`) **DEVEM** ser exatamente iguais aos 2 últimos dígitos da versão semântica declarada em `$plugin->release` (ex: `'0.1.07'`).
+- **Validação de CI/CD**: O workflow de automação de releases (`release.yml`) valida se os 2 últimos dígitos do `$plugin->version` (sufixo `07`) correspondem aos 2 últimos dígitos do `$plugin->release` (sufixo `07`). Se divergirem (ex: `00` vs `07`), a esteira de release falhará.
+
 ## 📚 Documentação
 
 Documentação completa em reStructuredText (Sphinx, tema `moodle_docs_theme`) no diretório [`docs/`](docs/index.rst):
