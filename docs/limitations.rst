@@ -49,8 +49,8 @@ mas comportamentos que quem instala ou evolui o plugin precisa conhecer.
      - Título padrão e rótulo "Trilha" fora dos arquivos de idioma; ``pluginname`` não é
        traduzido.
    * - 11
-     - **Sem testes automatizados**
-     - Não há PHPUnit nem Behat.
+     - **Suíte de testes PHPUnit**
+     - O repositório possui suíte de testes unitários para a classe ``course_repository`` (testes de escopo por categoria e visibilidade em ``tests/course_repository_test.php``).
    * - 12
      - **Slider fixo em 10–100 h**
      - Cursos fora desse intervalo só aparecem com o filtro desativado.

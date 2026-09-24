@@ -32,6 +32,7 @@ Para o funcionamento pleno dos filtros do bloco, o Moodle deve conter os seguint
 Ao adicionar o bloco a uma página (como a página inicial do site ou painel do usuário), os seguintes parâmetros podem ser configurados:
 
 - **Título Principal**: Título exibido no cabeçalho do bloco (padrão: *Cursos abertos do IFRN*).
+- **Categorias de cursos**: Seleção múltipla de categorias cujos cursos (e subcategorias elegíveis) serão exibidos na galeria. Se nenhuma categoria for selecionada, a galeria permanecerá vazia.
 - **Cursos por página**: Define o limite máximo de cursos exibidos simultaneamente por página (padrão: `9`).
 
 ## 📥 Instalação
@@ -47,6 +48,7 @@ Ao adicionar o bloco a uma página (como a página inicial do site ou painel do 
 
 ## 📂 Estrutura do Projeto
 
+- `classes/course_repository.php`: Classe de repositório que encapsula a lógica de escopo de categorias e subcategorias visíveis.
 - `block_course_gallery.php`: Classe base do bloco que renderiza o esqueleto inicial e chama o Javascript do frontend.
 - `edit_form.php`: Definição do formulário de configuração do bloco.
 - `version.php`: Definição da versão do bloco e dependências do Moodle.

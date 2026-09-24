@@ -33,6 +33,7 @@ $query = optional_param('search', '', PARAM_TEXT);
 $workload = optional_param('workload', '', PARAM_TEXT);
 $certificate = optional_param('certificate', '', PARAM_TEXT);
 $learningpath = optional_param('learningpath', '', PARAM_TEXT);
+$blockinstanceid = optional_param('blockinstanceid', 0, PARAM_INT);
 
 // Nega requisições que não sejam internas.
 $host = $_SERVER['HTTP_HOST'];
@@ -42,24 +43,34 @@ if (!$referer || $referer['host'] !== $host) {
     die;
 }
 
-$categoriesrecords = $DB->get_records('course_categories', null, '', 'id, name');
-$categories = [];
-foreach ($categoriesrecords as $category) {
-    $categoryobj = new stdClass();
-    $categoryobj->name = $category->name;
-    $categoryobj->url = "{$CFG->wwwroot}/course/management.php?categoryid={$category->id}";
-    $categories[$category->id] = $categoryobj;
+if (empty($blockinstanceid)) {
+    header("HTTP/1.1 400 Bad Request");
+    echo json_encode(['error' => "Parâmetro 'blockinstanceid' é obrigatório."]);
+    exit;
 }
 
-$sqlconditions = [];
-$params = [];
-
-if (!empty($query)) {
-    $sqlconditions[] = "LOWER(fullname) LIKE LOWER(:query)";
-    $params['query'] = '%' . $query . '%';
+$blockinstance = $DB->get_record('block_instances', ['id' => $blockinstanceid]);
+if (!$blockinstance) {
+    header("HTTP/1.1 400 Bad Request");
+    echo json_encode(['error' => 'Instância de bloco inválida.']);
+    exit;
 }
 
-// TODO: MDL-00000 Validar workloads.
+$config = !empty($blockinstance->configdata) ? unserialize(base64_decode($blockinstance->configdata)) : new stdClass();
+$configuredcategories = [];
+if (!empty($config->categories)) {
+    if (is_array($config->categories)) {
+        $configuredcategories = $config->categories;
+    } else if (is_string($config->categories)) {
+        $configuredcategories = explode(',', $config->categories);
+    }
+}
+
+// Se nenhuma categoria estiver configurada, a galeria retorna vazia (D3).
+if (empty($configuredcategories)) {
+    echo json_encode(['total' => 0, 'courses' => [], 'baseurl' => $CFG->wwwroot]);
+    die;
+}
 
 if (!empty($learningpath)) {
     $learningpathvalues = explode(',', $learningpath);
@@ -73,26 +84,24 @@ if (!empty($learningpath)) {
             exit;
         }
     }
-
-    [$learningpathquery, $learningpathparams] = $DB->get_in_or_equal($learningpathvalues, SQL_PARAMS_NAMED, 'learningpath');
-    $sqlconditions[] = "id IN (SELECT courseid FROM {suap_learning_path_course} WHERE learningpathid $learningpathquery)";
-    $params = array_merge($params, $learningpathparams);
 }
 
-$conditions = "";
-if (!empty($sqlconditions)) {
-    $conditions = ' AND ' . implode(' AND ', $sqlconditions);
+$categoriesrecords = $DB->get_records('course_categories', null, '', 'id, name');
+$categories = [];
+foreach ($categoriesrecords as $category) {
+    $categoryobj = new stdClass();
+    $categoryobj->name = $category->name;
+    $categoryobj->url = "{$CFG->wwwroot}/course/management.php?categoryid={$category->id}";
+    $categories[$category->id] = $categoryobj;
 }
 
-$sql = "
-SELECT c.id, c.fullname, c.category
-FROM {course} c INNER JOIN {enrol} e ON (c.id = e.courseid)
-WHERE c.visible = 1 AND c.id != 1 AND e.enrol = 'self' AND e.status = 0 {$conditions}
-ORDER BY c.id DESC
-";
+$repository = new \block_course_gallery\course_repository($DB);
+$filters = [
+    'search' => $query,
+    'learningpath' => $learningpath,
+];
 
-// Executa a consulta de forma segura.
-$courses = $DB->get_records_sql($sql, $params);
+$courses = $repository->get_courses($configuredcategories, $filters);
 
 $coursesresponse = [];
 foreach ($courses as $course) {

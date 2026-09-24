@@ -35,8 +35,16 @@ class block_course_gallery_edit_form extends block_edit_form {
         $mform->setDefault('config_gallery_title', 'Cursos abertos do IFRN');
         $mform->setType('config_gallery_title', PARAM_TEXT);
 
+        $options = \core_course_category::make_categories_list();
+        $mform->addElement('autocomplete', 'config_categories', get_string('categories', 'block_course_gallery'), $options, [
+            'multiple' => true,
+        ]);
+        $mform->setType('config_categories', PARAM_INT);
+        $mform->addHelpButton('config_categories', 'categories', 'block_course_gallery');
+
         $mform->addElement('text', 'config_max_courses', get_string('max_courses', 'block_course_gallery'));
         $mform->setType('config_max_courses', PARAM_INT);
         $mform->setDefault('config_max_courses', 9);
     }
 }
+
