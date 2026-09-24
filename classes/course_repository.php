@@ -28,7 +28,6 @@ use moodle_database;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course_repository {
-
     /** @var moodle_database Database instance. */
     protected $db;
 
