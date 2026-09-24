@@ -57,7 +57,7 @@ class course_repository {
             return [];
         }
 
-        $configuredcatids = array_values(array_unique(array_map('intval', array_filter($configuredcatids, function($v) {
+        $configuredcatids = array_values(array_unique(array_map('intval', array_filter($configuredcatids, function ($v) {
             return is_numeric($v) && intval($v) > 0;
         }))));
 

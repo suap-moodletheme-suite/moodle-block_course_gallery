@@ -16,8 +16,6 @@
 
 namespace block_course_gallery;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * PHPUnit tests for course_repository class.
  *
@@ -27,12 +25,12 @@ defined('MOODLE_INTERNAL') || die();
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \block_course_gallery\course_repository
  */
-class course_repository_test extends \advanced_testcase {
+final class course_repository_test extends \advanced_testcase {
 
     /**
      * Test get_eligible_category_ids with empty configuration.
      */
-    public function test_get_eligible_category_ids_empty() {
+    public function test_get_eligible_category_ids_empty(): void {
         $this->resetAfterTest(true);
         $repository = new course_repository();
         $this->assertEmpty($repository->get_eligible_category_ids([]));
@@ -41,7 +39,7 @@ class course_repository_test extends \advanced_testcase {
     /**
      * Test category hierarchy expansion and subcategory inclusion.
      */
-    public function test_get_eligible_category_ids_subcategories() {
+    public function test_get_eligible_category_ids_subcategories(): void {
         $this->resetAfterTest(true);
         $generator = $this->getDataGenerator();
 
@@ -58,7 +56,7 @@ class course_repository_test extends \advanced_testcase {
     /**
      * Test hidden category and hidden ancestor rules.
      */
-    public function test_get_eligible_category_ids_hidden_ancestor() {
+    public function test_get_eligible_category_ids_hidden_ancestor(): void {
         $this->resetAfterTest(true);
         $generator = $this->getDataGenerator();
 
@@ -74,7 +72,7 @@ class course_repository_test extends \advanced_testcase {
     /**
      * Test querying courses with category scoping and enrolments.
      */
-    public function test_get_courses_category_scoping() {
+    public function test_get_courses_category_scoping(): void {
         $this->resetAfterTest(true);
         $generator = $this->getDataGenerator();
 
