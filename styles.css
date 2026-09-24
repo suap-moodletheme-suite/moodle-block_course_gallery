@@ -468,7 +468,7 @@
     height: 8px;
     width: 190px;
 
-  /* Ponteiros: bolinhas */
+    /* Ponteiros: bolinhas */
     .noUi-handle {
         width: 16px;
         height: 16px;
@@ -479,12 +479,11 @@
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
         cursor: grab;
     }
+}
 
-    .noUi-handle:after,
-    #workload-slider .noUi-handle:before {
-        display: none;
-    }
-
+#workload-slider .noUi-handle::after,
+#workload-slider .noUi-handle::before {
+    display: none;
 }
 
 .modal-overlay {
