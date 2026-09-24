@@ -480,7 +480,8 @@
         cursor: grab;
     }
 
-    .noUi-handle:after, #workload-slider .noUi-handle:before {
+    .noUi-handle:after,
+    #workload-slider .noUi-handle:before {
         display: none;
     }
 
