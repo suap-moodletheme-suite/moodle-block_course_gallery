@@ -43,6 +43,10 @@ Parâmetros da instância
      - ``Cursos abertos do IFRN``
      - Texto do ``<h2>`` no cabeçalho do bloco. É renderizado com chaves triplas no
        Mustache (sem escape de HTML).
+   * - Categorias de cursos
+     - ``categories``
+     - Vazio
+     - Autocompletar múltiplo das categorias cujos cursos (e subcategorias elegíveis) serão exibidos na galeria. Se nenhuma categoria estiver configurada, a galeria permanecerá vazia.
    * - Cursos por página
      - ``max_courses``
      - ``9`` no formulário

@@ -26,6 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['add_title'] = 'Main  title';
+$string['categories'] = 'Course categories';
+$string['categories_help'] = 'Select one or more categories whose courses should be displayed in the gallery. If no category is selected, the gallery will not display any courses.';
 $string['filter'] = 'Filters';
 $string['max_courses'] = 'Courses per page';
 $string['pluginname'] = 'Course Gallery';

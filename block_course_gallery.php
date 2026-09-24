@@ -77,7 +77,7 @@ class block_course_gallery extends block_base
         $this->page->requires->js_call_amd(
             'block_course_gallery/main',
             'init',
-            [$coursesrequesturl, $this->config->max_courses ?? 3]
+            [$coursesrequesturl, $this->config->max_courses ?? 9, $this->instance->id]
         );
 
         // Initialize noUiSlider.

@@ -7,6 +7,8 @@ Estrutura do repositório
 .. code-block:: text
 
    block_course_gallery/
+   ├── classes/
+   │   └── course_repository.php  # Classe de repositório e escopo de cursos por categoria
    ├── block_course_gallery.php   # Classe do bloco (block_base)
    ├── edit_form.php              # Formulário de configuração da instância
    ├── version.php                # Versão, release e requisitos
@@ -17,6 +19,8 @@ Estrutura do repositório
    ├── amd/build/*.min.js         # Artefatos compilados servidos pelo Moodle
    ├── templates/header.mustache  # Cabeçalho, busca e modal de filtros
    ├── templates/pagination.mustache
+   ├── tests/
+   │   └── course_repository_test.php # Testes PHPUnit do repositório
    ├── db/access.php              # Capacidades
    ├── lang/{en,pt_br}/           # Strings de idioma
    ├── pix/                       # Ícones e imagem padrão de curso

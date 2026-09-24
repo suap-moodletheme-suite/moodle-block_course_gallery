@@ -26,6 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['add_title'] = 'Título principal';
+$string['categories'] = 'Categorias de cursos';
+$string['categories_help'] = 'Selecione uma ou mais categorias cujos cursos devem ser exibidos na galeria. Se nenhuma categoria for selecionada, a galeria não exibirá cursos.';
 $string['filter'] = 'Filtros';
 $string['max_courses'] = 'Cursos por página';
 $string['pluginname'] = 'Course Gallery';

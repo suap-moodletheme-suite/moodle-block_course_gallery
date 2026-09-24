@@ -26,6 +26,10 @@ Parâmetros de consulta
      - inteiro
      - ``8``
      - Cursos por página. Mínimo ``1``.
+   * - ``blockinstanceid``
+     - inteiro
+     - **obrigatório**
+     - ID da instância do bloco. Usado para carregar as configurações de escopo (categorias). Obriga HTTP ``400`` se ausente ou inválido.
    * - ``search``
      - texto
      - vazio
@@ -89,6 +93,12 @@ Erros
    * - 200
      - ``{"error": "Access denied."}``
      - Requisição sem cabeçalho ``Referer`` ou de outro host.
+   * - 400
+     - ``{"error": "Parâmetro 'blockinstanceid' é obrigatório."}``
+     - Parâmetro ``blockinstanceid`` ausente ou igual a zero.
+   * - 400
+     - ``{"error": "Instância de bloco inválida."}``
+     - ``blockinstanceid`` fornecido não foi encontrado na tabela ``{block_instances}``.
    * - 400
      - ``{"error": "Parâmetro 'learningpath' inválido..."}``
      - Valor não numérico ou ≤ 0 em ``learningpath``.

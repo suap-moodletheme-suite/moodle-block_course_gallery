@@ -3,6 +3,7 @@ define(["core/str"], function (str) {
     let currentPage = 0;
     let limit = 0;
     let totalCourses = 0;
+    let blockInstanceId = 0;
 
     const courseArea = document.querySelector('.course-area');
     const searchInput = document.querySelector('#search');
@@ -20,6 +21,7 @@ define(["core/str"], function (str) {
         try {
             const filters = getFilter();
             const queryParams = `page=${currentPage}&limit=${limit}` +
+                `&blockinstanceid=${blockInstanceId}` +
                 `&search=${searchInput.value}&workload=${filters.workload}` +
                 `&certificate=${filters.certificate}&lang=${filters.lang}` +
                 `&learningpath=${filters.learningpath}`;
@@ -342,10 +344,11 @@ define(["core/str"], function (str) {
     window.addEventListener('load', correctMainPadding);
 
     return {
-        init: (requestUrl, maxCourses) => {
+        init: (requestUrl, maxCourses, instanceId) => {
             url = requestUrl;
             limit = maxCourses;
             limit = limit || 9;
+            blockInstanceId = instanceId || 0;
             loadCourses();
         }
     };
