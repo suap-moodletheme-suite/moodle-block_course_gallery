@@ -39,11 +39,31 @@ class block_course_gallery_edit_form extends block_edit_form {
         $mform->addElement('autocomplete', 'config_categories', get_string('categories', 'block_course_gallery'), $options, [
             'multiple' => true,
         ]);
-        $mform->setType('config_categories', PARAM_INT);
+        $mform->setType('config_categories', PARAM_RAW);
         $mform->addHelpButton('config_categories', 'categories', 'block_course_gallery');
 
         $mform->addElement('text', 'config_max_courses', get_string('max_courses', 'block_course_gallery'));
         $mform->setType('config_max_courses', PARAM_INT);
         $mform->setDefault('config_max_courses', 9);
+    }
+
+    /**
+     * Load in existing data as form defaults.
+     *
+     * @param stdClass $defaults The default values.
+     */
+    public function set_data($defaults) {
+        if (!empty($defaults->config_categories)) {
+            if (is_string($defaults->config_categories)) {
+                $defaults->config_categories = explode(',', $defaults->config_categories);
+            }
+            if (is_array($defaults->config_categories)) {
+                $defaults->config_categories = array_values(array_filter(array_map('intval', $defaults->config_categories)));
+            }
+        } else {
+            $defaults->config_categories = [];
+        }
+
+        parent::set_data($defaults);
     }
 }
