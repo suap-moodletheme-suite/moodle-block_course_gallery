@@ -30,7 +30,7 @@ final class upgrade_test extends \advanced_testcase {
      * Test upgrade populates empty block instance categories with eligible course categories.
      */
     public function test_upgrade_populates_empty_block_instances(): void {
-        global $DB;
+        global $CFG, $DB;
 
         $this->resetAfterTest(true);
         $generator = $this->getDataGenerator();
@@ -78,6 +78,7 @@ final class upgrade_test extends \advanced_testcase {
         ];
         $instance2->id = $DB->insert_record('block_instances', $instance2);
 
+        require_once($CFG->libdir . '/upgradelib.php');
         require_once(__DIR__ . '/../db/upgrade.php');
 
         $result = xmldb_block_course_gallery_upgrade(2026092407);

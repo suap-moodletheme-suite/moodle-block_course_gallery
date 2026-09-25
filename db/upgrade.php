@@ -22,8 +22,6 @@
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Execute block_course_gallery upgrade steps.
  *
@@ -31,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool True on success.
  */
 function xmldb_block_course_gallery_upgrade($oldversion) {
-    global $DB;
+    global $CFG, $DB;
 
     if ($oldversion < 2026092508) {
         $sql = "SELECT DISTINCT c.category
@@ -82,6 +80,7 @@ function xmldb_block_course_gallery_upgrade($oldversion) {
             }
         }
 
+        require_once($CFG->libdir . '/upgradelib.php');
         upgrade_block_savepoint(true, 2026092508, 'course_gallery');
     }
 
