@@ -46,7 +46,7 @@ Parâmetros da instância
    * - Categorias de cursos
      - ``categories``
      - Vazio
-     - Autocompletar múltiplo das categorias cujos cursos (e subcategorias elegíveis) serão exibidos na galeria. Se nenhuma categoria estiver configurada, a galeria permanecerá vazia.
+     - Autocompletar múltiplo das categorias cujos cursos (e subcategorias elegíveis) serão exibidos na galeria. Se nenhuma categoria estiver configurada, serão exibidos todos os cursos elegíveis com autoinscrição ativa.
    * - Cursos por página
      - ``max_courses``
      - ``9`` no formulário

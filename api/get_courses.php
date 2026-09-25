@@ -36,9 +36,18 @@ $learningpath = optional_param('learningpath', '', PARAM_TEXT);
 $blockinstanceid = optional_param('blockinstanceid', 0, PARAM_INT);
 
 // Nega requisições que não sejam internas.
-$host = $_SERVER['HTTP_HOST'];
+$host = parse_url('http://' . $_SERVER['HTTP_HOST'], PHP_URL_HOST) ?? $_SERVER['HTTP_HOST'];
+$wwwrootHost = parse_url($CFG->wwwroot, PHP_URL_HOST);
 $referer = isset($_SERVER['HTTP_REFERER']) ? parse_url($_SERVER['HTTP_REFERER']) : null;
-if (!$referer || $referer['host'] !== $host) {
+$refererhost = strtolower($referer['host'] ?? '');
+$allowedhosts = array_values(array_unique(array_filter([
+    strtolower($host),
+    strtolower($wwwrootHost),
+    'localhost',
+    '127.0.0.1',
+])));
+
+if (!$refererhost || !in_array($refererhost, $allowedhosts, true)) {
     echo json_encode(['error' => 'Access denied.']);
     die;
 }
@@ -65,13 +74,6 @@ if (!empty($config->categories)) {
         $configuredcategories = explode(',', $config->categories);
     }
 }
-
-// Se nenhuma categoria estiver configurada, a galeria retorna vazia (D3).
-if (empty($configuredcategories)) {
-    echo json_encode(['total' => 0, 'courses' => [], 'baseurl' => $CFG->wwwroot]);
-    die;
-}
-
 if (!empty($learningpath)) {
     $learningpathvalues = explode(',', $learningpath);
 

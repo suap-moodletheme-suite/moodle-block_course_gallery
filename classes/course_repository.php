@@ -52,18 +52,6 @@ class course_repository {
      * @return array Array of eligible category IDs.
      */
     public function get_eligible_category_ids(array $configuredcatids): array {
-        if (empty($configuredcatids)) {
-            return [];
-        }
-
-        $configuredcatids = array_values(array_unique(array_map('intval', array_filter($configuredcatids, function ($v) {
-            return is_numeric($v) && intval($v) > 0;
-        }))));
-
-        if (empty($configuredcatids)) {
-            return [];
-        }
-
         $allcategories = $this->db->get_records('course_categories', null, '', 'id, name, path, visible');
         if (empty($allcategories)) {
             return [];
@@ -84,8 +72,16 @@ class course_repository {
                 }
             }
             if ($allvisible) {
-                $visiblecatids[$cat->id] = true;
+                $visiblecatids[$cat->id] = (int)$cat->id;
             }
+        }
+
+        $configuredcatids = array_values(array_unique(array_map('intval', array_filter($configuredcatids, function ($v) {
+            return is_numeric($v) && intval($v) > 0;
+        }))));
+
+        if (empty($configuredcatids)) {
+            return array_values($visiblecatids);
         }
 
         // Expand configured categories to include their descendants, only if eligible.

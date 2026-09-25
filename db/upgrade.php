@@ -31,7 +31,7 @@
 function xmldb_block_course_gallery_upgrade($oldversion) {
     global $CFG, $DB;
 
-    if ($oldversion < 2026092508) {
+    if ($oldversion < 2026092509) {
         $sql = "SELECT DISTINCT c.category
                   FROM {course} c
             INNER JOIN {enrol} e ON (c.id = e.courseid)
@@ -81,7 +81,7 @@ function xmldb_block_course_gallery_upgrade($oldversion) {
         }
 
         require_once($CFG->libdir . '/upgradelib.php');
-        upgrade_block_savepoint(true, 2026092508, 'course_gallery');
+        upgrade_block_savepoint(true, 2026092509, 'course_gallery');
     }
 
     return true;
