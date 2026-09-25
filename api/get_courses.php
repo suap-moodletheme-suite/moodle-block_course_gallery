@@ -65,13 +65,6 @@ if (!empty($config->categories)) {
         $configuredcategories = explode(',', $config->categories);
     }
 }
-
-// Se nenhuma categoria estiver configurada, a galeria retorna vazia (D3).
-if (empty($configuredcategories)) {
-    echo json_encode(['total' => 0, 'courses' => [], 'baseurl' => $CFG->wwwroot]);
-    die;
-}
-
 if (!empty($learningpath)) {
     $learningpathvalues = explode(',', $learningpath);
 

@@ -27,12 +27,20 @@ namespace block_course_gallery;
  */
 final class course_repository_test extends \advanced_testcase {
     /**
-     * Test get_eligible_category_ids with empty configuration.
+     * Test get_eligible_category_ids with empty configuration defaults to all visible categories.
      */
     public function test_get_eligible_category_ids_empty(): void {
         $this->resetAfterTest(true);
+        $generator = $this->getDataGenerator();
+
+        $catvisible = $generator->create_category(['name' => 'Visible Category', 'visible' => 1]);
+        $cathidden = $generator->create_category(['name' => 'Hidden Category', 'visible' => 0]);
+
         $repository = new course_repository();
-        $this->assertEmpty($repository->get_eligible_category_ids([]));
+        $eligible = $repository->get_eligible_category_ids([]);
+
+        $this->assertContains((int)$catvisible->id, $eligible);
+        $this->assertNotContains((int)$cathidden->id, $eligible);
     }
 
     /**
