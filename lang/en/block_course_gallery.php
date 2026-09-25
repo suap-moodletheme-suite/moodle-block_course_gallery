@@ -25,10 +25,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['add_title'] = 'Main  title';
+$string['add_title'] = 'Main title';
 $string['categories'] = 'Course categories';
 $string['categories_help'] = 'Select one or more categories whose courses should be displayed in the gallery. If no category is selected, all eligible courses with active self-enrolment will be displayed.';
+$string['certificate'] = 'Certificate';
 $string['filter'] = 'Filters';
+$string['hours'] = 'hours';
+$string['language'] = 'Language';
 $string['max_courses'] = 'Courses per page';
 $string['pluginname'] = 'Course Gallery';
+$string['workload'] = 'Workload';
 $string['selected_time'] = 'Selected time:';

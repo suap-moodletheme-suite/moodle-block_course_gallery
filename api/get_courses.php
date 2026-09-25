@@ -107,23 +107,47 @@ $courses = $repository->get_courses($configuredcategories, $filters);
 
 $coursesresponse = [];
 foreach ($courses as $course) {
-    $imageurl = \core_course\external\course_summary_exporter::get_course_image($course);
+    $imageurl = '';
+    try {
+        $imageurl = \core_course\external\course_summary_exporter::get_course_image($course);
+    } catch (\Throwable $e) {
+        $imageurl = '';
+    }
     if (empty($imageurl)) {
         $imageurl = "{$CFG->wwwroot}/blocks/course_gallery/pix/default-course-image.webp";
     }
 
-    $category = $categories[$course->category];
-    $customfieldsmetadata = \core_course\customfield\course_handler::create()->export_instance_data_object($course->id, true);
+    $category = isset($categories[$course->category]) ? $categories[$course->category] : (object)[
+        'name' => '',
+        'url' => "{$CFG->wwwroot}/course/management.php?categoryid={$course->category}"
+    ];
 
-    $rawdatas = \core_course\customfield\course_handler::create()->get_instance_data($course->id, true);
-    foreach ($rawdatas as $data) {
-        $shortname = $data->get_field()->get('shortname');
-        if ($shortname === 'tem_certificado') {
-            $customfieldsmetadata->tem_certificado = $data->get_value();
+    $hascertificate = 0;
+    $courseworkloadval = null;
+    $courselangval = '';
+
+    try {
+        $customfieldsmetadata = \core_course\customfield\course_handler::create()->export_instance_data_object($course->id, true);
+        if (isset($customfieldsmetadata->tem_certificado)) {
+            $hascertificate = $customfieldsmetadata->tem_certificado;
         }
-    }
+        if (isset($customfieldsmetadata->carga_horaria)) {
+            $courseworkloadval = $customfieldsmetadata->carga_horaria;
+        }
+        if (isset($customfieldsmetadata->linguagem_conteudo)) {
+            $courselangval = $customfieldsmetadata->linguagem_conteudo;
+        }
 
-    $courselang = isset($customfieldsmetadata->linguagem_conteudo) ? $customfieldsmetadata->linguagem_conteudo : '';
+        $rawdatas = \core_course\customfield\course_handler::create()->get_instance_data($course->id, true);
+        foreach ($rawdatas as $data) {
+            $shortname = $data->get_field()->get('shortname');
+            if ($shortname === 'tem_certificado') {
+                $hascertificate = $data->get_value();
+            }
+        }
+    } catch (\Throwable $e) {
+        // Fallback para campos customizados ausentes ou invalidos.
+    }
 
     if (!empty($workload) && $workload !== '0') {
         $workloadvalues = explode(',', $workload);
@@ -136,9 +160,9 @@ foreach ($courses as $course) {
         }
 
         if (!($min === 0 && $max === 0)) {
-            $courseworkload = isset($customfieldsmetadata->carga_horaria) ? (int) $customfieldsmetadata->carga_horaria : 0;
+            $checkworkload = (int) $courseworkloadval;
 
-            if ($courseworkload < $min || $courseworkload > $max) {
+            if ($checkworkload < $min || $checkworkload > $max) {
                 continue;
             }
         }
@@ -148,7 +172,7 @@ foreach ($courses as $course) {
         $certificatevalues = explode(',', $certificate);
         $isvalidcertificate = false;
         foreach ($certificatevalues as $value) {
-            if ($customfieldsmetadata->tem_certificado == $value) {
+            if ($hascertificate == $value) {
                 $isvalidcertificate = true;
                 break;
             }
@@ -159,9 +183,9 @@ foreach ($courses as $course) {
     }
 
     $courseresponse = new stdClass();
-    $courseresponse->has_certificate = $customfieldsmetadata->tem_certificado;
-    $courseresponse->workload = $customfieldsmetadata->carga_horaria;
-    $courseresponse->lang = $customfieldsmetadata->linguagem_conteudo;
+    $courseresponse->has_certificate = $hascertificate;
+    $courseresponse->workload = $courseworkloadval;
+    $courseresponse->lang = $courselangval;
     $courseresponse->id = $course->id;
     $courseresponse->fullname = $course->fullname;
     $courseresponse->category_name = $category->name;

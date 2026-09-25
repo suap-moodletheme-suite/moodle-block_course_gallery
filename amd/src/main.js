@@ -5,12 +5,16 @@ define(["core/str"], function (str) {
     let totalCourses = 0;
     let blockInstanceId = 0;
 
-    const courseArea = document.querySelector('.course-area');
-    const searchInput = document.querySelector('#search');
-    const pagination = document.querySelector('.pagination');
-    const paginationNumbers = document.querySelector('#pagination-numbers');
-    const prevPageButton = document.querySelector('#prev-page');
-    const nextPageButton = document.querySelector('#next-page');
+    function getElements() {
+        return {
+            courseArea: document.querySelector('.course-area'),
+            searchInput: document.querySelector('#search'),
+            pagination: document.querySelector('.pagination'),
+            paginationNumbers: document.querySelector('#pagination-numbers'),
+            prevPageButton: document.querySelector('#prev-page'),
+            nextPageButton: document.querySelector('#next-page'),
+        };
+    }
 
     /**
      * Fetch and render courses from backend based on search query, page and filters.
@@ -19,10 +23,16 @@ define(["core/str"], function (str) {
      */
     async function loadCourses() {
         try {
+            const { courseArea, searchInput } = getElements();
+            if (!courseArea) {
+                return;
+            }
+
+            const searchValue = searchInput ? searchInput.value : '';
             const filters = getFilter();
             const queryParams = `page=${currentPage}&limit=${limit}` +
                 `&blockinstanceid=${blockInstanceId}` +
-                `&search=${searchInput.value}&workload=${filters.workload}` +
+                `&search=${encodeURIComponent(searchValue)}&workload=${filters.workload}` +
                 `&certificate=${filters.certificate}&lang=${filters.lang}` +
                 `&learningpath=${filters.learningpath}`;
             const response = await fetch(`${url}?${queryParams}`);
@@ -33,6 +43,13 @@ define(["core/str"], function (str) {
             }
 
             const data = await response.json();
+
+            if (data.error) {
+                // eslint-disable-next-line no-console
+                console.error('Error fetching courses:', data.error);
+                return;
+            }
+
             const total = data.total || 0;
             const courses = data.courses || [];
             const baseurl = data.baseurl || '';
@@ -41,16 +58,24 @@ define(["core/str"], function (str) {
             courseArea.innerHTML = '';
 
             if (courses.length === 0) {
-                const nomorecourses = await str.get_string('nomorecourses', 'core');
+                const nomorecourses = await str.get_string('nomorecourses', 'core').catch(() => 'Nenhum curso encontrado');
                 courseArea.innerHTML = '<p>' + nomorecourses + '</p>';
                 updatePaginationButtons();
                 return;
             }
 
-            const certificateStr = await str.get_string('certificate', 'theme_suap');
-            const workloadStr = await str.get_string('workload', 'theme_suap');
-            const hoursStr = await str.get_string('hours', 'core');
-            const languageStr = await str.get_string('language', 'core');
+            const certificateStr = await str.get_string('certificate', 'block_course_gallery')
+                .catch(() => str.get_string('certificate', 'theme_suap'))
+                .catch(() => 'Certificado');
+            const workloadStr = await str.get_string('workload', 'block_course_gallery')
+                .catch(() => str.get_string('workload', 'theme_suap'))
+                .catch(() => 'Carga horária');
+            const hoursStr = await str.get_string('hours', 'block_course_gallery')
+                .catch(() => str.get_string('hours', 'core'))
+                .catch(() => 'horas');
+            const languageStr = await str.get_string('language', 'block_course_gallery')
+                .catch(() => str.get_string('language', 'core'))
+                .catch(() => 'Idioma');
 
             courses.forEach(course => {
                 const certificateArea = !course.has_certificate ? '' : `
@@ -297,56 +322,86 @@ define(["core/str"], function (str) {
         }
     }
 
-    searchInput.addEventListener('input', loadCourses);
+    const searchInput = document.querySelector('#search');
+    if (searchInput) {
+        searchInput.addEventListener('input', loadCourses);
+    }
 
-    prevPageButton.addEventListener('click', () => {
-        if (currentPage > 0) {
-            currentPage--;
-            loadCourses();
-        }
-    });
-
-    nextPageButton.addEventListener('click', () => {
-        if ((currentPage + 1) * limit < totalCourses) {
-            currentPage++;
-            loadCourses();
-        }
-    });
-
-    document.querySelector('#filter-courses').addEventListener('click', () => {
-        document.querySelector('#filter-area').style.display = 'block';
-        document.querySelector('#modal-overlay').style.display = 'block';
-        toggleScroll();
-    });
-
-    document.querySelector('#clear-filter').addEventListener('click', () => {
-        document.querySelectorAll('.filter-content input[type="checkbox"]').forEach(checkbox => {
-            checkbox.checked = false;
+    const prevPageButton = document.querySelector('#prev-page');
+    if (prevPageButton) {
+        prevPageButton.addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                loadCourses();
+            }
         });
+    }
 
-        // Reseta o slider (noUiSlider).
-        const slider = document.getElementById('workload-slider');
-        if (slider && slider.noUiSlider) {
-            const range = slider.noUiSlider.options.range;
-            slider.noUiSlider.set([range.min, range.max]);
-        }
+    const nextPageButton = document.querySelector('#next-page');
+    if (nextPageButton) {
+        nextPageButton.addEventListener('click', () => {
+            if ((currentPage + 1) * limit < totalCourses) {
+                currentPage++;
+                loadCourses();
+            }
+        });
+    }
 
-        updateFilterBadge();
+    const filterCourses = document.querySelector('#filter-courses');
+    if (filterCourses) {
+        filterCourses.addEventListener('click', () => {
+            const filterArea = document.querySelector('#filter-area');
+            const modalOverlay = document.querySelector('#modal-overlay');
+            if (filterArea) {
+                filterArea.style.display = 'block';
+            }
+            if (modalOverlay) {
+                modalOverlay.style.display = 'block';
+            }
+            toggleScroll();
+        });
+    }
 
-        currentPage = 0;
-        loadCourses();
-    });
+    const clearFilter = document.querySelector('#clear-filter');
+    if (clearFilter) {
+        clearFilter.addEventListener('click', () => {
+            document.querySelectorAll('.filter-content input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
 
-    document.querySelector('#apply-filter').addEventListener('click', () => {
-        currentPage = 0;
-        loadCourses();
-        closeFilter();
-        updateFilterBadge();
-    });
+            // Reseta o slider (noUiSlider).
+            const slider = document.getElementById('workload-slider');
+            if (slider && slider.noUiSlider) {
+                const range = slider.noUiSlider.options.range;
+                slider.noUiSlider.set([range.min, range.max]);
+            }
 
-    document.querySelector('#close-filter').addEventListener('click', closeFilter);
+            updateFilterBadge();
 
-    document.querySelector('#modal-overlay').addEventListener('click', closeFilter);
+            currentPage = 0;
+            loadCourses();
+        });
+    }
+
+    const applyFilter = document.querySelector('#apply-filter');
+    if (applyFilter) {
+        applyFilter.addEventListener('click', () => {
+            currentPage = 0;
+            loadCourses();
+            closeFilter();
+            updateFilterBadge();
+        });
+    }
+
+    const closeFilterBtn = document.querySelector('#close-filter');
+    if (closeFilterBtn) {
+        closeFilterBtn.addEventListener('click', closeFilter);
+    }
+
+    const modalOverlay = document.querySelector('#modal-overlay');
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', closeFilter);
+    }
 
     window.addEventListener('load', correctMainPadding);
 
