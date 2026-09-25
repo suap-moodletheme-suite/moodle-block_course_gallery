@@ -25,19 +25,26 @@ define(["core/str"], function (str) {
                 `&search=${searchInput.value}&workload=${filters.workload}` +
                 `&certificate=${filters.certificate}&lang=${filters.lang}` +
                 `&learningpath=${filters.learningpath}`;
-            // eslint-disable-next-line no-console
-            const response = await fetch(`${url}?${queryParams}`)
+            const response = await fetch(`${url}?${queryParams}`);
+            if (!response.ok) {
                 // eslint-disable-next-line no-console
-                .catch(error => console.error('Error fetching courses:', error));
+                console.error('Error fetching courses:', response.statusText);
+                return;
+            }
 
-            const { total, courses, baseurl } = await response.json();
+            const data = await response.json();
+            const total = data.total || 0;
+            const courses = data.courses || [];
+            const baseurl = data.baseurl || '';
             totalCourses = total;
 
             courseArea.innerHTML = '';
 
-            if (courses.length == 0) {
+            if (courses.length === 0) {
                 const nomorecourses = await str.get_string('nomorecourses', 'core');
                 courseArea.innerHTML = '<p>' + nomorecourses + '</p>';
+                updatePaginationButtons();
+                return;
             }
 
             const certificateStr = await str.get_string('certificate', 'theme_suap');

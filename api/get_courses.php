@@ -125,9 +125,8 @@ foreach ($courses as $course) {
 
     $courselang = isset($customfieldsmetadata->linguagem_conteudo) ? $customfieldsmetadata->linguagem_conteudo : '';
 
-    if (!empty($workload)) {
+    if (!empty($workload) && $workload !== '0') {
         $workloadvalues = explode(',', $workload);
-        $isvalidworkload = false;
 
         $min = (int) $workloadvalues[0];
         $max = isset($workloadvalues[1]) ? (int) $workloadvalues[1] : $min;
@@ -136,14 +135,12 @@ foreach ($courses as $course) {
             [$min, $max] = [$max, $min];
         }
 
-        $courseworkload = (int) $customfieldsmetadata->carga_horaria;
+        if (!($min === 0 && $max === 0)) {
+            $courseworkload = isset($customfieldsmetadata->carga_horaria) ? (int) $customfieldsmetadata->carga_horaria : 0;
 
-        if ($courseworkload == 0) {
-            continue;
-        }
-
-        if ($courseworkload < $min || $courseworkload > $max) {
-            continue;
+            if ($courseworkload < $min || $courseworkload > $max) {
+                continue;
+            }
         }
     }
 

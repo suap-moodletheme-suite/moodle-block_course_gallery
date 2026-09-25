@@ -78,12 +78,12 @@ final class upgrade_test extends \advanced_testcase {
         ];
         $instance2->id = $DB->insert_record('block_instances', $instance2);
 
-        set_config('version', 2026092508, 'block_course_gallery');
+        set_config('version', 2026092509, 'block_course_gallery');
 
         require_once($CFG->libdir . '/upgradelib.php');
         require_once(__DIR__ . '/../db/upgrade.php');
 
-        $result = xmldb_block_course_gallery_upgrade(2026092508);
+        $result = xmldb_block_course_gallery_upgrade(2026092509);
         $this->assertTrue($result);
 
         // Verify Instance 1 was updated with both cat1 and cat2.

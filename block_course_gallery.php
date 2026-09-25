@@ -73,7 +73,7 @@ class block_course_gallery extends block_base
         $this->title = '';
 
         global $CFG;
-        $coursesrequesturl = $CFG->wwwroot . '/blocks/course_gallery/api/get_courses.php';
+        $coursesrequesturl = (new moodle_url('/blocks/course_gallery/api/get_courses.php'))->out_as_local_url(false);
         $this->page->requires->js_call_amd(
             'block_course_gallery/main',
             'init',
