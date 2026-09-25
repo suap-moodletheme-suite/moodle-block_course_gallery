@@ -20,8 +20,10 @@ Estrutura do repositório
    ├── templates/header.mustache  # Cabeçalho, busca e modal de filtros
    ├── templates/pagination.mustache
    ├── tests/
-   │   └── course_repository_test.php # Testes PHPUnit do repositório
+   │   ├── course_repository_test.php # Testes PHPUnit do repositório
+   │   └── upgrade_test.php           # Testes PHPUnit do upgrade de versão
    ├── db/access.php              # Capacidades
+   ├── db/upgrade.php             # Passos de atualização do bloco em banco de dados
    ├── lang/{en,pt_br}/           # Strings de idioma
    ├── pix/                       # Ícones e imagem padrão de curso
    └── styles.css                 # Estilos do bloco
