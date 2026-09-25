@@ -78,6 +78,8 @@ final class upgrade_test extends \advanced_testcase {
         ];
         $instance2->id = $DB->insert_record('block_instances', $instance2);
 
+        set_config('version', 2026092407, 'block_course_gallery');
+
         require_once($CFG->libdir . '/upgradelib.php');
         require_once(__DIR__ . '/../db/upgrade.php');
 
