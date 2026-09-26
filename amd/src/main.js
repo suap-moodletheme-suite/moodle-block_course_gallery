@@ -121,6 +121,11 @@ define(["core/str"], function (str) {
      * @returns {void}
      */
     function updatePaginationButtons() {
+        const { pagination, paginationNumbers, prevPageButton, nextPageButton } = getElements();
+        if (!pagination || !paginationNumbers || !prevPageButton || !nextPageButton) {
+            return;
+        }
+
         paginationNumbers.innerHTML = '';
         prevPageButton.disabled = currentPage === 0;
         nextPageButton.disabled = (currentPage + 1) * limit >= totalCourses;
@@ -138,19 +143,19 @@ define(["core/str"], function (str) {
         let endPage = Math.min(totalPages - 1, currentPage + pageRange);
 
         if (startPage > 2) {
-            createPageButton(0);
-            createPageButton(1);
+            createPageButton(0, paginationNumbers);
+            createPageButton(1, paginationNumbers);
             paginationNumbers.innerHTML += '... ';
         }
 
         for (let i = startPage; i <= endPage; i++) {
-            createPageButton(i);
+            createPageButton(i, paginationNumbers);
         }
 
         if (endPage < totalPages - 3) {
             paginationNumbers.innerHTML += ' ...';
-            createPageButton(totalPages - 2);
-            createPageButton(totalPages - 1);
+            createPageButton(totalPages - 2, paginationNumbers);
+            createPageButton(totalPages - 1, paginationNumbers);
         }
 
         nextPageButton.setAttribute('page', currentPage + 1);
@@ -163,9 +168,15 @@ define(["core/str"], function (str) {
      * Create a pagination page button.
      *
      * @param {number} page The page number.
+     * @param {HTMLElement|null} [targetContainer] The container element for pagination numbers.
      * @returns {void}
      */
-    function createPageButton(page) {
+    function createPageButton(page, targetContainer) {
+        const container = targetContainer || getElements().paginationNumbers;
+        if (!container) {
+            return;
+        }
+
         const button = document.createElement('button');
         button.classList.add('pagination-number');
         button.textContent = page + 1;
@@ -180,7 +191,7 @@ define(["core/str"], function (str) {
             updateActivePageButton();
         });
 
-        paginationNumbers.appendChild(button);
+        container.appendChild(button);
     }
 
     /**
@@ -274,8 +285,10 @@ define(["core/str"], function (str) {
         });
 
         const badge = document.querySelector('.filter-badge');
-        badge.style.display = totalFilters > 0 ? 'inline-block' : 'none';
-        badge.innerHTML = totalFilters > 0 ? totalFilters : '';
+        if (badge) {
+            badge.style.display = totalFilters > 0 ? 'inline-block' : 'none';
+            badge.innerHTML = totalFilters > 0 ? totalFilters : '';
+        }
     }
 
     /**
@@ -284,8 +297,14 @@ define(["core/str"], function (str) {
      * @returns {void}
      */
     function closeFilter() {
-        document.querySelector('#filter-area').style.display = 'none';
-        document.querySelector('#modal-overlay').style.display = 'none';
+        const filterArea = document.querySelector('#filter-area');
+        const modalOverlay = document.querySelector('#modal-overlay');
+        if (filterArea) {
+            filterArea.style.display = 'none';
+        }
+        if (modalOverlay) {
+            modalOverlay.style.display = 'none';
+        }
         toggleScroll();
     }
 
@@ -296,8 +315,10 @@ define(["core/str"], function (str) {
      */
     function correctMainPadding() {
         const main = document.querySelector('[role="main"]');
-        main.style.paddingLeft = '0';
-        main.style.paddingRight = '0';
+        if (main) {
+            main.style.paddingLeft = '0';
+            main.style.paddingRight = '0';
+        }
     }
 
     /**
@@ -307,10 +328,12 @@ define(["core/str"], function (str) {
      */
     function toggleScroll() {
         const body = document.querySelector('body');
-        if (body.style.overflow === 'hidden') {
-            body.style.overflow = 'auto';
-        } else {
-            body.style.overflow = 'hidden';
+        if (body) {
+            if (body.style.overflow === 'hidden') {
+                body.style.overflow = 'auto';
+            } else {
+                body.style.overflow = 'hidden';
+            }
         }
     }
 
