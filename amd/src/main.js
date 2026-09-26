@@ -64,18 +64,10 @@ define(["core/str"], function (str) {
                 return;
             }
 
-            const certificateStr = await str.get_string('certificate', 'block_course_gallery')
-                .catch(() => str.get_string('certificate', 'theme_suap'))
-                .catch(() => 'Certificado');
-            const workloadStr = await str.get_string('workload', 'block_course_gallery')
-                .catch(() => str.get_string('workload', 'theme_suap'))
-                .catch(() => 'Carga horária');
-            const hoursStr = await str.get_string('hours', 'block_course_gallery')
-                .catch(() => str.get_string('hours', 'core'))
-                .catch(() => 'horas');
-            const languageStr = await str.get_string('language', 'block_course_gallery')
-                .catch(() => str.get_string('language', 'core'))
-                .catch(() => 'Idioma');
+            const certificateStr = await str.get_string('certificate', 'block_course_gallery').catch(() => 'Certificado');
+            const workloadStr = await str.get_string('workload', 'block_course_gallery').catch(() => 'Carga horária');
+            const hoursStr = await str.get_string('hours', 'block_course_gallery').catch(() => 'horas');
+            const languageStr = await str.get_string('language', 'block_course_gallery').catch(() => 'Idioma');
 
             courses.forEach(course => {
                 const certificateArea = !course.has_certificate ? '' : `
