@@ -83,7 +83,7 @@ Estes valores não são configuráveis pela interface; alterá-los exige editar 
      - ``block_course_gallery::render_courses()``
    * - Versão do noUiSlider
      - 15.7.1 (CDN jsDelivr)
-     - ``specialization()`` e ``amd/src/noUiSlider.js``
+     - ``styles.css`` e ``amd/src/noUiSlider.js``
    * - Curso excluído da listagem
      - ``id = 1`` (página inicial do site)
      - ``api/get_courses.php``

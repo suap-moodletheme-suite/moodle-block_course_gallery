@@ -34,8 +34,9 @@ Fluxo de execução
 .. code-block:: text
 
    Página carrega
-     └─ specialization()  → registra CSS/JS (noUiSlider) e chama block_course_gallery/main.init(url, limit)
-     └─ get_content()     → header.mustache + 8 cartões skeleton + pagination.mustache
+     └─ specialization()          → zera título do bloco
+     └─ get_required_javascript() → registra inicializações AMD (main.init e noUiSlider.init)
+     └─ get_content()             → header.mustache + 8 cartões skeleton + pagination.mustache
    Navegador
      └─ main.init()       → loadCourses()
           └─ fetch(api/get_courses.php?page&limit&search&workload&certificate&lang&learningpath)
@@ -51,9 +52,11 @@ A classe ``block_course_gallery``
 
 ``specialization()``
    Chamado após ``init()``, com a configuração da instância carregada. Zera o título para
-   ocultar o cabeçalho padrão do Moodle, carrega o módulo AMD ``block_course_gallery/main``
-   com a URL da API e ``max_courses``, adiciona o CSS/JS do noUiSlider via CDN e inicia o
-   módulo ``block_course_gallery/noUiSlider``.
+   ocultar o cabeçalho padrão do Moodle.
+
+``get_required_javascript()``
+   Registra o carregamento dos módulos AMD ``block_course_gallery/main`` (com URL da API e ``max_courses``)
+   e ``block_course_gallery/noUiSlider``.
 
 ``get_content()``
    Renderiza ``header`` com ``gallery_title``, anexa o esqueleto de carregamento

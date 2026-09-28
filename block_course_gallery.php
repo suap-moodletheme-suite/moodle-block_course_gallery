@@ -71,20 +71,27 @@ class block_course_gallery extends block_base
     public function specialization() {
         // Para retirar o título.
         $this->title = '';
+    }
 
-        global $CFG;
+    public function get_required_javascript() {
+        parent::get_required_javascript();
+
         $coursesrequesturl = (new moodle_url('/blocks/course_gallery/api/get_courses.php'))->out_as_local_url(false);
+
         $this->page->requires->js_call_amd(
             'block_course_gallery/main',
             'init',
-            [$coursesrequesturl, $this->config->max_courses ?? 9, $this->instance->id]
+            [
+                $coursesrequesturl,
+                $this->config->max_courses ?? 9,
+                $this->instance->id,
+            ]
         );
 
-        // Initialize noUiSlider.
-        $this->page->requires->css(new moodle_url('https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css'));
-        $this->page->requires->js(new moodle_url('https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js'), true);
-
-        $this->page->requires->js_call_amd('block_course_gallery/noUiSlider', 'init');
+        $this->page->requires->js_call_amd(
+            'block_course_gallery/noUiSlider',
+            'init'
+        );
     }
 
     /**
