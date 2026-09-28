@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'block_course_gallery';
-$plugin->release = '0.1.15';
-$plugin->version = 2026092815;
+$plugin->release = '0.1.16';
+$plugin->version = 2026092816;
 $plugin->requires = 2022112800;
 $plugin->maturity = MATURITY_STABLE;
